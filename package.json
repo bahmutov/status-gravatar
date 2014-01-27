@@ -37,6 +37,8 @@
   },
   "dependencies": {
     "check-types": "~1.1.1",
-    "set-gravatar": "0.0.1"
+    "set-gravatar": "0.0.1",
+    "q": "~1.0.0",
+    "moment": "~2.5.1"
   }
 }
