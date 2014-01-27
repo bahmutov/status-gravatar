@@ -52,15 +52,32 @@ function checkStatus() {
   return defer.promise;
 }
 
-var workerInterval = setInterval(function checkAndSet() {
-  console.log('checking and setting');
-  checkStatus()
-  .then(function (status) {
-    var image = getImageIdFromStatus(status);
-    verify.unemptyString(image, 'could not image id for status ' + status);
-    console.log(now(), 'status', status, 'image id', image);
-  })
-  .fail(function (err) {
-    console.error('error', err);
-  });
-}, 5000);
+function runLoop(addresses, interval) {
+  verify.array(addresses, 'expected addresses array');
+  console.log('have', addresses.length, 'email address(es)');
+  if (addresses.length < 1) {
+    throw new Error('empty list of addresses for email ' + email);
+  }
+  if (interval < 1000) {
+    throw new Error('interval in ms should be longer than 1 second, probably 1 hour is best');
+  }
+  var workerInterval = setInterval(function checkAndSet() {
+    console.log('checking and setting');
+
+    checkStatus()
+    .then(function (status) {
+      var image = getImageIdFromStatus(status);
+      verify.unemptyString(image, 'could not image id for status ' + status);
+      console.log(now(), 'status', status, 'image id', image);
+    })
+    .fail(function (err) {
+      console.error('error', err);
+    });
+  }, interval);
+}
+
+gravatar.addresses(function (err, addresses) {
+  if (err) throw err;
+  var interval = 5; // seconds
+  runLoop(Object.keys(addresses), interval * 1000);
+});
