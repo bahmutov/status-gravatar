@@ -4,8 +4,9 @@
   "description": "Sets my Gravatar profile image depending on the status of my projects",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "gulp"
   },
+  "pre-commit": "gulp",
   "repository": {
     "type": "git",
     "url": "git://github.com/bahmutov/status-gravatar.git"
@@ -28,7 +29,11 @@
     "time-grunt": "~0.2.8",
     "matchdep": "~0.3.0",
     "grunt": "~0.4.2",
-    "grunt-readme": "~0.4.5"
+    "grunt-readme": "~0.4.5",
+    "pre-git": "0.0.15",
+    "jshint-stylish": "~0.1.5",
+    "gulp": "~3.5.0",
+    "gulp-jshint": "~1.3.4"
   },
   "dependencies": {
     "check-types": "~1.1.1",
