@@ -61,6 +61,8 @@ function runLoop(addresses, interval) {
   if (interval < 1000) {
     throw new Error('interval in ms should be longer than 1 second, probably 1 hour is best');
   }
+
+  var previousImage;
   var workerInterval = setInterval(function checkAndSet() {
     console.log('checking and setting');
 
@@ -69,6 +71,14 @@ function runLoop(addresses, interval) {
       var image = getImageIdFromStatus(status);
       verify.unemptyString(image, 'could not image id for status ' + status);
       console.log(now(), 'status', status, 'image id', image);
+      if (previousImage === image) {
+        console.log('nothing has changed, keeping same image');
+        return;
+      }
+      gravatar.useUserimage(image, addresses, function (err, results) {
+        if (err) throw err;
+        console.log('set image', image, 'as public gravatar, results', results);
+      });
     })
     .fail(function (err) {
       console.error('error', err);
