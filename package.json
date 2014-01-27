@@ -29,5 +29,9 @@
     "matchdep": "~0.3.0",
     "grunt": "~0.4.2",
     "grunt-readme": "~0.4.5"
+  },
+  "dependencies": {
+    "check-types": "~1.1.1",
+    "set-gravatar": "0.0.1"
   }
 }
