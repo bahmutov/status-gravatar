@@ -114,12 +114,11 @@ function runLoop(addresses, interval) {
         console.log('nothing has changed, keeping same image');
         return;
       }
-      /*
+
       gravatar.useUserimage(image, addresses, function (err, results) {
         if (err) throw err;
         console.log('set image', image, 'as public gravatar, results', results);
       });
-*/
     })
     .fail(function (err) {
       console.error('error', err);
@@ -129,6 +128,6 @@ function runLoop(addresses, interval) {
 
 gravatar.addresses(function (err, addresses) {
   if (err) throw err;
-  var interval = 5; // seconds
+  var interval = 3600; // seconds
   runLoop(Object.keys(addresses), interval * 1000);
 });
