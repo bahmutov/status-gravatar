@@ -102,7 +102,8 @@ function runLoop(addresses, interval) {
   }
 
   var previousImage;
-  var workerInterval = setInterval(function checkAndSet() {
+
+  function checkAndSet() {
     console.log('checking and setting');
 
     checkStatus()
@@ -123,7 +124,11 @@ function runLoop(addresses, interval) {
     .fail(function (err) {
       console.error('error', err);
     });
-  }, interval);
+  }
+
+  var workerInterval = setInterval(checkAndSet, interval);
+  // run first time
+  checkAndSet();
 }
 
 gravatar.addresses(function (err, addresses) {
