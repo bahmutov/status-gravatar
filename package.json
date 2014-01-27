@@ -1,0 +1,33 @@
+{
+  "name": "status-gravatar",
+  "version": "0.0.0",
+  "description": "Sets my Gravatar profile image depending on the status of my projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/bahmutov/status-gravatar.git"
+  },
+  "keywords": [
+    "gravatar",
+    "status",
+    "profile",
+    "image",
+    "build"
+  ],
+  "author": "Gleb Bahmutov <gleb.bahmutov@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bahmutov/status-gravatar/issues"
+  },
+  "homepage": "https://github.com/bahmutov/status-gravatar",
+  "devDependencies": {
+    "grunt-bump": "0.0.13",
+    "time-grunt": "~0.2.8",
+    "matchdep": "~0.3.0",
+    "grunt": "~0.4.2",
+    "grunt-readme": "~0.4.5"
+  }
+}
