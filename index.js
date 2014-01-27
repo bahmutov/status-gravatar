@@ -1,18 +1,24 @@
 var verify = require('check-types').verify;
 var q = require('q');
 var moment = require('moment');
+var Table = require('easy-table');
+var S = require('string');
 
-var email, password;
+var email, password, username;
 
-(function getEmailAndPassword() {
-  console.log('getting email and password from environment');
+(function getUserInfo() {
+  console.log('getting Gravatar email and password from environment');
   email = process.env.GRAVATAR_EMAIL;
   password = process.env.GRAVATAR_PASSWORD;
+  console.log('getting Github username from environment');
+  username = process.env.GITHUB_USERNAME;
 }());
 
 verify.unemptyString(email, 'missing email');
 console.log('using gravatar email', email);
 verify.unemptyString(password, 'missing password');
+
+verify.unemptyString(username, 'missing github username');
 
 var gravatar = require('set-gravatar')(email, password);
 verify.object(gravatar, 'got gravatar api object for ' + email);
@@ -38,16 +44,49 @@ function now() {
   return moment().format('YYYY-MM-DD h:mm:ss a');
 }
 
+var Travis = require('travis-ci');
+var travis = new Travis({
+    version: '2.0.0'
+});
+
+function printRepos(repos) {
+  verify.array(repos, 'expected array of repos');
+  var t = new Table();
+  repos.forEach(function (repo) {
+    t.cell('slug', repo.slug);
+    t.cell('status', repo.last_build_state);
+    t.cell('description', S(repo.description).truncate(50).s);
+    t.newRow();
+  });
+  console.log(t.toString());
+}
+
 // resolved with percent value 0 - 100
 // 0 - everything is broken
 // 100 - everything is perfect
 function checkStatus() {
   var defer = q.defer();
-  process.nextTick(function () {
-    var dice = Math.random() * 100;
-    dice = dice.toFixed(0);
-    console.log('project status', dice + '%');
-    defer.resolve(+dice);
+
+  travis.repos({
+    owner_name: username
+  }, function (err, results) {
+    if (err) throw err;
+    verify.object(results, 'missing results object');
+    verify.array(results.repos, 'missing repos array in ' + JSON.stringify(results, null, 2));
+    printRepos(results.repos);
+
+    var good = 0;
+    var errorRegexp = /fail|error/i;
+    results.repos.forEach(function (repo) {
+      if (!errorRegexp.test(repo.last_build_state)) {
+        good += 1;
+      }
+    });
+    var successful = results.repos.length ? good / results.repos.length : 0;
+    successful *= 100;
+    successful = successful.toFixed(0);
+    console.log('for username', username, good, 'good projects from', results.repos.length);
+    defer.resolve(+successful);
   });
   return defer.promise;
 }
@@ -75,10 +114,12 @@ function runLoop(addresses, interval) {
         console.log('nothing has changed, keeping same image');
         return;
       }
+      /*
       gravatar.useUserimage(image, addresses, function (err, results) {
         if (err) throw err;
         console.log('set image', image, 'as public gravatar, results', results);
       });
+*/
     })
     .fail(function (err) {
       console.error('error', err);
