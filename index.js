@@ -5,6 +5,12 @@ var moment = require('moment');
 var Table = require('easy-table');
 var S = require('string');
 
+var updateNotifier = require('update-notifier');
+var notifier = updateNotifier();
+if (notifier.update) {
+  notifier.notify();
+}
+
 var email, password, username;
 
 function initUserInfo() {
