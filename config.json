@@ -1,0 +1,14 @@
+{
+  // Gravatar email
+  // if using GRAVATAR_EMAIL
+  // then will lookup from environment variable GRAVATAR_EMAIL
+  "email": "gleb.bahmutov@gmail.com",
+  // Gravatar password
+  // if using GRAVATAR_PASSWORD
+  // then will lookup from environment variable GRAVATAR_PASSWORD
+  "password": "GRAVATAR_PASSWORD",
+  // github profile username
+  // if using GITHUB_USERNAME
+  // then will lookup from environment variable GITHUB_USERNAME
+  "username": "bahmutov"
+}

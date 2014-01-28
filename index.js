@@ -1,3 +1,4 @@
+require('autostrip-json-comments');
 var verify = require('check-types').verify;
 var q = require('q');
 var moment = require('moment');
@@ -6,22 +7,43 @@ var S = require('string');
 
 var email, password, username;
 
-(function getUserInfo() {
-  console.log('getting Gravatar email and password from environment');
-  email = process.env.GRAVATAR_EMAIL;
-  password = process.env.GRAVATAR_PASSWORD;
-  console.log('getting Github username from environment');
-  username = process.env.GITHUB_USERNAME;
-}());
+function initUserInfo() {
+  (function getUserInfo() {
+    var config = require('./config.json');
 
-verify.unemptyString(email, 'missing email');
-console.log('using gravatar email', email);
-verify.unemptyString(password, 'missing password');
+    if (!config.email || config.email === 'GRAVATAR_EMAIL') {
+      console.log('getting Gravatar email from environment');
+      email = process.env.GRAVATAR_EMAIL;
+    } else {
+      email = config.email;
+    }
 
-verify.unemptyString(username, 'missing github username');
+    if (!config.password || config.password === 'GRAVATAR_PASSWORD') {
+      console.log('getting Gravatar password from environment');
+      password = process.env.GRAVATAR_PASSWORD;
+    } else {
+      password = config.password;
+    }
 
-var gravatar = require('set-gravatar')(email, password);
-verify.object(gravatar, 'got gravatar api object for ' + email);
+    if (!config.username || config.username === 'GITHUB_USERNAME') {
+      console.log('getting Github username from environment');
+      username = process.env.GITHUB_USERNAME;
+    } else {
+      username = config.username;
+    }
+  }());
+
+  verify.unemptyString(email, 'missing email');
+  console.log('using gravatar email', email);
+  verify.unemptyString(password, 'missing password');
+  verify.unemptyString(username, 'missing github username');
+}
+
+function initGravatarClient(email, password) {
+  var gravatar = require('set-gravatar')(email, password);
+  verify.object(gravatar, 'got gravatar api object for ' + email);
+  return gravatar;
+}
 
 function getImageIdFromStatus(status) {
   verify.number(status, 'expecting status number, got ' + status);
@@ -131,8 +153,14 @@ function runLoop(addresses, interval) {
   checkAndSet();
 }
 
-gravatar.addresses(function (err, addresses) {
-  if (err) throw err;
-  var interval = 3600; // seconds
-  runLoop(Object.keys(addresses), interval * 1000);
-});
+function startApp() {
+  initUserInfo();
+  var gravatar = initGravatarClient(email, password);
+  gravatar.addresses(function (err, addresses) {
+    if (err) throw err;
+    var interval = 3600; // seconds
+    runLoop(Object.keys(addresses), interval * 1000);
+  });
+}
+
+require('pretty-error').start(startApp);
