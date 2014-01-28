@@ -83,6 +83,28 @@ function printRepos(repos) {
   console.log(t.toString());
 }
 
+function printUserImages(userimages) {
+  verify.object(userimages, 'expected userimages object');
+  var info = {};
+  Object.keys(userimages).forEach(function (id) {
+    var props = userimages[id];
+    var url = props[1];
+    verify.webUrl(url, 'could not get image url from ' + props);
+    info[id] = url;
+  });
+
+  var t = new Table();
+
+  console.log('user images:');
+  Object.keys(info).forEach(function (id) {
+    var url = info[id];
+    t.cell('id', id);
+    t.cell('url', url);
+    t.newRow();
+  });
+  console.log(t.toString());
+}
+
 // resolved with percent value 0 - 100
 // 0 - everything is broken
 // 100 - everything is perfect
@@ -158,8 +180,14 @@ function startApp() {
   var gravatar = initGravatarClient(email, password);
   gravatar.addresses(function (err, addresses) {
     if (err) throw err;
-    var interval = 3600; // seconds
-    runLoop(Object.keys(addresses), interval * 1000);
+
+    gravatar.userimages(function (err, userimages) {
+      if (err) throw err;
+      printUserImages(userimages);
+
+      var interval = 3600; // seconds
+      runLoop(Object.keys(addresses), interval * 1000);
+    });
   });
 }
 
