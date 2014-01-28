@@ -11,38 +11,35 @@ if (notifier.update) {
   notifier.notify();
 }
 
-var email, password, username;
-
 function initUserInfo() {
-  (function getUserInfo() {
-    var config = require('./config.json');
+  var email, password, username;
+  var config = require('./config.json');
 
-    if (!config.email || config.email === 'GRAVATAR_EMAIL') {
-      console.log('getting Gravatar email from environment');
-      email = process.env.GRAVATAR_EMAIL;
-    } else {
-      email = config.email;
-    }
+  if (!config.email || config.email === 'GRAVATAR_EMAIL') {
+    console.log('getting Gravatar email from environment');
+    email = process.env.GRAVATAR_EMAIL;
+  } else {
+    email = config.email;
+  }
 
-    if (!config.password || config.password === 'GRAVATAR_PASSWORD') {
-      console.log('getting Gravatar password from environment');
-      password = process.env.GRAVATAR_PASSWORD;
-    } else {
-      password = config.password;
-    }
+  if (!config.password || config.password === 'GRAVATAR_PASSWORD') {
+    console.log('getting Gravatar password from environment');
+    password = process.env.GRAVATAR_PASSWORD;
+  } else {
+    password = config.password;
+  }
 
-    if (!config.username || config.username === 'GITHUB_USERNAME') {
-      console.log('getting Github username from environment');
-      username = process.env.GITHUB_USERNAME;
-    } else {
-      username = config.username;
-    }
-  }());
-
-  verify.unemptyString(email, 'missing email');
-  console.log('using gravatar email', email);
-  verify.unemptyString(password, 'missing password');
-  verify.unemptyString(username, 'missing github username');
+  if (!config.username || config.username === 'GITHUB_USERNAME') {
+    console.log('getting Github username from environment');
+    username = process.env.GITHUB_USERNAME;
+  } else {
+    username = config.username;
+  }
+  return {
+    email: email,
+    password: password,
+    username: username
+  };
 }
 
 function initGravatarClient(email, password) {
@@ -181,9 +178,19 @@ function runLoop(addresses, interval) {
   checkAndSet();
 }
 
+function verifyUser(user) {
+  verify.object(user, 'could not get user object');
+  verify.unemptyString(user.email, 'missing email');
+  verify.unemptyString(user.password, 'missing password');
+  verify.unemptyString(user.username, 'missing github username');
+}
+
 function startApp() {
-  initUserInfo();
-  var gravatar = initGravatarClient(email, password);
+  var user = initUserInfo();
+  verifyUser(user);
+  console.log('using gravatar email', user.email);
+
+  var gravatar = initGravatarClient(user.email, user.password);
   gravatar.addresses(function (err, addresses) {
     if (err) throw err;
 
