@@ -11,6 +11,8 @@ if (notifier.update) {
   notifier.notify();
 }
 
+var getImageIdFromStatus;
+
 function initUserInfo() {
   var email, password, username;
   var config = require('./config.json');
@@ -35,6 +37,10 @@ function initUserInfo() {
   } else {
     username = config.username;
   }
+
+  getImageIdFromStatus = require('./src/getImage').bind(null, config.images);
+  verify.fn(getImageIdFromStatus, 'could not get image function');
+
   return {
     email: email,
     password: password,
@@ -46,23 +52,6 @@ function initGravatarClient(email, password) {
   var gravatar = require('set-gravatar')(email, password);
   verify.object(gravatar, 'got gravatar api object for ' + email);
   return gravatar;
-}
-
-function getImageIdFromStatus(status) {
-  verify.number(status, 'expecting status number, got ' + status);
-  if (status < 0 || status > 100) {
-    throw new Error('invalid percent status ' + status);
-  }
-  if (status < 50) {
-    return '4c685643d2f7dce36c63f1fc62748a60';
-  } else if (status < 75) {
-    return '0fd1ef2b64f760afb5e3dc66db8b231c';
-  } else if (status < 90) {
-    return '4982ff0079347587d5d4698076cbe5a0';
-  } else {
-    // everything is perfect
-    return 'f44fea071b9f570e66f339a121f10230';
-  }
 }
 
 function now() {
@@ -111,7 +100,8 @@ function printUserImages(userimages) {
 // resolved with percent value 0 - 100
 // 0 - everything is broken
 // 100 - everything is perfect
-function checkStatus() {
+function checkStatus(username) {
+  verify.unemptyString(username, 'missing username');
   var defer = q.defer();
 
   travis.repos({
@@ -138,7 +128,9 @@ function checkStatus() {
   return defer.promise;
 }
 
-function runLoop(addresses, interval) {
+function runLoop(gravatar, user, addresses, interval) {
+  verify.object(gravatar, 'expected gravatar client');
+  verify.object(user, 'expected user object');
   verify.array(addresses, 'expected addresses array');
   console.log('have', addresses.length, 'email address(es)');
   if (addresses.length < 1) {
@@ -153,7 +145,7 @@ function runLoop(addresses, interval) {
   function checkAndSet() {
     console.log('checking and setting');
 
-    checkStatus()
+    checkStatus(user.username)
     .then(function (status) {
       var image = getImageIdFromStatus(status);
       verify.unemptyString(image, 'could not image id for status ' + status);
@@ -166,6 +158,7 @@ function runLoop(addresses, interval) {
       gravatar.useUserimage(image, addresses, function (err, results) {
         if (err) throw err;
         console.log('set image', image, 'as public gravatar, results', results);
+        console.log('going to sleep ...');
       });
     })
     .fail(function (err) {
@@ -199,7 +192,7 @@ function startApp() {
       printUserImages(userimages);
 
       var interval = 3600; // seconds
-      runLoop(Object.keys(addresses), interval * 1000);
+      runLoop(gravatar, user, Object.keys(addresses), interval * 1000);
     });
   });
 }
