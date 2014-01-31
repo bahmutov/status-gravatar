@@ -1,20 +1,10 @@
 # Use
 
-Set the following environment variables before running `node index.js`,
-I use for example a bash runner
+Start the program setting your gravatar password in the environment
+variable `GRAVATAR_PASSWORD`
 
-```bash
-#!/bin/bash
-
-# set gravatar user name and password, then
-# runs the program
-export GRAVATAR_EMAIL="<gravatar email>"
-export GRAVATAR_PASSWORD="<gravatar password>"
-export GITHUB_USERNAME="github username"
-
-node index.js
-```
+    export GRAVATAR_PASSWORD=<your password>; gravatar
 
 The worker will wake up every hour, check Travis ci build statuses,
-and if any fail will change your Gravatar image.
+and depending on success percentage will change your Gravatar image.
 

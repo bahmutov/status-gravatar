@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 require('autostrip-json-comments');
 var verify = require('check-types').verify;
 var q = require('q');

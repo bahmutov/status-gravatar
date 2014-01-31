@@ -1,8 +1,12 @@
 {
   "name": "status-gravatar",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Sets my Gravatar profile image depending on the status of my projects",
   "main": "index.js",
+  "bin": {
+    "gravatar": "index.js"
+  },
+  "preferGlobal": true,
   "scripts": {
     "test": "gulp"
   },

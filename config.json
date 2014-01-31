@@ -6,6 +6,7 @@
   // Gravatar password
   // if using GRAVATAR_PASSWORD
   // then will lookup from environment variable GRAVATAR_PASSWORD
+  // please do not commit this file if you set the password!
   "password": "GRAVATAR_PASSWORD",
   // github profile username
   // if using GITHUB_USERNAME

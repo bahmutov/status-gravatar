@@ -4,6 +4,8 @@
 
 {%= _.doc("./docs/badges.md") %}
 
+{%= _.doc("./docs/install.md") %}
+
 {%= _.doc("./docs/use.md") %}
 
 {%= _.doc("./docs/footer.md") %}
