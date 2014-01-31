@@ -49,6 +49,32 @@ function initUserInfo() {
   };
 }
 
+function verifyValidUserImages(userimages) {
+  verify.array(userimages, 'expected list of user images');
+  var config = require('./config.json');
+  if (!_.isObject(config)) {
+    throw new Error('invalid config');
+  }
+  if (!_.isObject(config.images)) {
+    throw new Error('invalid config.images object');
+  }
+  var configImages = Object.keys(config.images);
+  if (!configImages.length) {
+    throw new Error('Config images ' + JSON.stringify(config.images, null, 2) +
+      'has not entries');
+  }
+  configImages.forEach(function (percent) {
+    var image = config.images[percent];
+    if (!_.contains(userimages, image)) {
+      console.error('config.json for status', percent, 'has image id', image);
+      console.error('Cannot find this value in user images');
+      console.json(userimages);
+      console.error('please check config.json to make sure it contains your image ids only');
+      process.exit(-1);
+    }
+  });
+}
+
 function initGravatarClient(email, password) {
   var gravatar = require('set-gravatar')(email, password);
   verify.object(gravatar, 'got gravatar api object for ' + email);
@@ -196,6 +222,8 @@ function startApp() {
     gravatar.userimages(function (err, userimages) {
       if (err) throw err;
       printUserImages(userimages);
+
+      verifyValidUserImages(Object.keys(userimages));
 
       var interval = 3600; // seconds
       runLoop(gravatar, user, Object.keys(userimages),
