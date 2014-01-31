@@ -4,6 +4,7 @@ var q = require('q');
 var moment = require('moment');
 var Table = require('easy-table');
 var S = require('string');
+var _ = require('lodash');
 
 var updateNotifier = require('update-notifier');
 var notifier = updateNotifier();
@@ -128,9 +129,10 @@ function checkStatus(username) {
   return defer.promise;
 }
 
-function runLoop(gravatar, user, addresses, interval) {
+function runLoop(gravatar, user, userimages, addresses, interval) {
   verify.object(gravatar, 'expected gravatar client');
   verify.object(user, 'expected user object');
+  verify.array(userimages, 'expected user images array');
   verify.array(addresses, 'expected addresses array');
   console.log('have', addresses.length, 'email address(es)');
   if (addresses.length < 1) {
@@ -154,8 +156,12 @@ function runLoop(gravatar, user, addresses, interval) {
         console.log('nothing has changed, keeping same image');
         return;
       }
+      if (!_.contains(userimages, image)) {
+        throw new Error('Cannot set new image ' + image +
+          ', it is not in the list of images' + JSON.stringify(userimages, null, 2));
+      }
 
-      gravatar.useUserimage(image, addresses, function (err, results) {
+      gravatar.useUserimage(image, addresses, function onSetUserImage(err, results) {
         if (err) throw err;
         console.log('set image', image, 'as public gravatar, results', results);
         console.log('going to sleep ...');
@@ -192,7 +198,8 @@ function startApp() {
       printUserImages(userimages);
 
       var interval = 3600; // seconds
-      runLoop(gravatar, user, Object.keys(addresses), interval * 1000);
+      runLoop(gravatar, user, Object.keys(userimages),
+        Object.keys(addresses), interval * 1000);
     });
   });
 }

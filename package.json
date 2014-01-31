@@ -45,6 +45,7 @@
     "string": "~1.8.0",
     "autostrip-json-comments": "0.0.4",
     "pretty-error": "~0.1.10",
-    "update-notifier": "~0.1.7"
+    "update-notifier": "~0.1.7",
+    "lodash": "~2.4.1"
   }
 }
